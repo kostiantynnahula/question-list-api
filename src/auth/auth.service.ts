@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from 'src/utils/hash/hash.service';
@@ -10,13 +6,13 @@ import { LoginDto } from './dto/login.dto';
 import { AccessTokenDto } from './dto/access.dto';
 import { CreateUserDto } from 'src/users/dto/create.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
+import { jwtSecret } from './auth.module';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly hashService: HashService,
   ) {}
 
   async login(data: LoginDto): Promise<AccessTokenDto> {
@@ -26,7 +22,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const matchPassword = await this.hashService.compare(
+    const matchPassword = await HashService.compare(
       user.password,
       data.password,
     );
@@ -35,7 +31,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const accessToken = this.jwtService.sign({ userId: user.id });
+    const accessToken = this.jwtService.sign(
+      { id: user.id },
+      { secret: jwtSecret },
+    );
 
     return { accessToken };
   }
@@ -43,7 +42,7 @@ export class AuthService {
   async register(
     data: CreateUserDto,
   ): Promise<Pick<UserEntity, 'id' | 'email' | 'username'>> {
-    const hashedPassword = await this.hashService.hash(data.password);
+    const hashedPassword = await HashService.hash(data.password);
 
     const { id, username, email } = await this.usersService.create({
       ...data,

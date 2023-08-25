@@ -5,19 +5,29 @@ import {
   IsNotEmpty,
   IsString,
   MinLength,
+  Validate,
 } from 'class-validator';
+import { EmailValidator } from 'src/auth/validator/email.validator';
 
-export class LoginDto {
-  @ApiProperty()
+export class RegisterDto {
   @IsDefined()
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
+  @ApiProperty()
+  username: string;
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty()
+  @Validate(EmailValidator)
   email: string;
 
-  @ApiProperty()
   @IsDefined()
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
+  @ApiProperty()
   password: string;
 }
