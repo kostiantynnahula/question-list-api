@@ -9,10 +9,20 @@ datasource db {
 }
 
 model User {
-  id            Int @id @default(autoincrement())
-  username      String?
-  email         String  @unique
-  password      String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                    Int @id @default(autoincrement())
+  username              String
+  email                 String  @unique
+  password              String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  reset_password        ResetPassword?
+}
+
+model ResetPassword {
+  id            Int       @id @default(autoincrement())
+  email         String
+  token         String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int       @unique
+  createdAt     DateTime  @default(now())
 }
