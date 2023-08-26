@@ -20,6 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new UnauthorizedException();
     }
 
-    return user;
+    const { password, ...data } = user;
+
+    return data;
   }
 }

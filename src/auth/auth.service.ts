@@ -23,11 +23,11 @@ export class AuthService {
     }
 
     const matchPassword = await HashService.compare(
-      user.password,
       data.password,
+      user.password,
     );
 
-    if (matchPassword) {
+    if (!matchPassword) {
       throw new UnauthorizedException('Invalid email or password');
     }
 

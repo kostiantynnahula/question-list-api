@@ -12,6 +12,8 @@ import { AccessTokenDto } from './dto/access.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Auth } from 'src/utils/decorators/auth.decorator';
+import { UserEntity } from 'src/users/entities/user.entity';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -31,8 +33,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  async profile(@Request() req) {
-    const id = req.user.id;
-    return { id };
+  async profile(@Auth() user: UserEntity) {
+    return user;
   }
 }
