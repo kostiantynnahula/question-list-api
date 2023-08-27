@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { EmailValidator } from './validator/email.validator';
 import { JwtStrategy } from './jwt.strategy';
 import { ResetPasswordModule } from 'src/reset-password/reset-password.module';
+import { MailsModule } from 'src/mails/mails.module';
 
 export const jwtSecret = process.env.JWT_SECRET || 'secret';
 
@@ -16,6 +17,7 @@ export const jwtSecret = process.env.JWT_SECRET || 'secret';
     UsersModule,
     PassportModule,
     ResetPasswordModule,
+    MailsModule,
     JwtModule.register({
       secret: jwtSecret,
       signOptions: {

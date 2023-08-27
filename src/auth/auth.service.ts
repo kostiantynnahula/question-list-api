@@ -16,6 +16,7 @@ import { ResetDto } from './dto/reset.dto';
 import { ResetPasswordService } from 'src/reset-password/reset-password.service';
 import { ForgotDto } from './dto/forgot.dto';
 import * as randomstring from 'randomstring';
+import { MailsService } from 'src/mails/mails.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly resetService: ResetPasswordService,
+    private readonly mailsService: MailsService,
   ) {}
 
   async login(data: LoginDto): Promise<LoginResponseDto> {
@@ -88,6 +90,8 @@ export class AuthService {
       length: 12,
       charset: 'alphabetic',
     });
+
+    await this.mailsService.sendResetLink(user.email, token);
 
     const resetPassPayload = {
       userId: user.id,

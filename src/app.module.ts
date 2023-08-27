@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
+import { MailsModule } from './mails/mails.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ResetPasswordModule } from './reset-password/reset-password.module';
     PrismaModule,
     AuthModule,
     ResetPasswordModule,
+    MailsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
