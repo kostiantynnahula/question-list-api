@@ -8,7 +8,7 @@ import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from 'src/utils/hash/hash.service';
 import { LoginDto } from './dto/login.dto';
-import { AccessTokenDto } from './dto/access.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
 import { CreateUserDto } from 'src/users/dto/create.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { jwtSecret } from './auth.module';
@@ -25,7 +25,7 @@ export class AuthService {
     private readonly resetService: ResetPasswordService,
   ) {}
 
-  async login(data: LoginDto): Promise<AccessTokenDto> {
+  async login(data: LoginDto): Promise<LoginResponseDto> {
     const user = await this.usersService.findByEmail(data.email);
 
     if (!user) {
@@ -46,7 +46,9 @@ export class AuthService {
       { secret: jwtSecret },
     );
 
-    return { accessToken };
+    const { id, username, email } = user;
+
+    return { id, username, email, accessToken };
   }
 
   async register(
