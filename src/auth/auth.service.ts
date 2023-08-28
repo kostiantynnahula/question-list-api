@@ -17,6 +17,7 @@ import { ResetPasswordService } from 'src/reset-password/reset-password.service'
 import { ForgotDto } from './dto/forgot.dto';
 import * as randomstring from 'randomstring';
 import { MailsService } from 'src/mails/mails.service';
+import { UpdateUserDto } from 'src/users/dto/update.dto';
 
 @Injectable()
 export class AuthService {
@@ -114,5 +115,13 @@ export class AuthService {
     await this.usersService.updateById(item.userId, { password });
 
     await this.resetService.deleteById(item.id);
+  }
+
+  async updateProfile(id: number, data: UpdateUserDto) {
+    if (data.password) {
+      data.password = await HashService.hash(data.password);
+    }
+
+    return await this.usersService.updateById(id, data);
   }
 }
