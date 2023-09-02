@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
@@ -9,20 +9,84 @@ datasource db {
 }
 
 model User {
-  id                    Int @id @default(autoincrement())
-  username              String
-  email                 String  @unique
-  password              String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  reset_password        ResetPassword?
+  id             Int            @id @default(autoincrement())
+  username       String
+  email          String         @unique
+  password       String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  reset_password ResetPassword?
+  tests          Test[]
 }
 
 model ResetPassword {
-  id            Int       @id @default(autoincrement())
-  email         String
-  token         String    @unique
-  user          User      @relation(fields: [userId], references: [id])
-  userId        Int       @unique
-  createdAt     DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  email     String
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
+  createdAt DateTime @default(now())
+}
+
+model Test {
+  id         String      @id @default(uuid())
+  name       String
+  user       User        @relation(fields: [userId], references: [id])
+  userId     Int
+  categories Category[]
+  interviews Interview[]
+  answers    Answer[]
+  createdAt  DateTime    @default(now())
+}
+
+model Category {
+  id        String     @id @default(uuid())
+  name      String
+  test      Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testId    String
+  questions Question[]
+  createdAt DateTime   @default(now())
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  answer      String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId  String
+  answers     Answer[]
+  createdAt   DateTime @default(now())
+}
+
+model Interview {
+  id          String    @id @default(uuid())
+  name        String
+  description String
+  test        Test      @relation(fields: [testId], references: [id])
+  testId      String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  candidateId String
+  createdAt   DateTime  @default(now())
+}
+
+model Candidate {
+  id         String      @id @default(uuid())
+  fullName   String
+  email      String      @unique
+  resumeLink String
+  interviews Interview[]
+  answers    Answer[]
+  createdAt  DateTime    @default(now())
+}
+
+model Answer {
+  id          String    @id @default(uuid())
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  candidateId String
+  test        Test      @relation(fields: [testId], references: [id])
+  testId      String
+  question    Question  @relation(fields: [questionId], references: [id])
+  questionId  String
+  createdAt   DateTime  @default(now())
 }
