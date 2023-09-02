@@ -7,6 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
 import { MailsModule } from './mails/mails.module';
+import { CategoriesModule } from './categories/categories.module';
+import { QuestionsModule } from './questions/questions.module';
+import { TestsModule } from './tests/tests.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { MailsModule } from './mails/mails.module';
     AuthModule,
     ResetPasswordModule,
     MailsModule,
+    CategoriesModule,
+    QuestionsModule,
+    TestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
