@@ -36,8 +36,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  // const { httpAdapter } = app.get(HttpAdapterHost);
-  // app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   await app.listen(3000);
 }

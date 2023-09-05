@@ -1,24 +1,26 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDefined } from 'class-validator';
+import { IsDefined, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
 
 export class QuestionDto {
-  @ApiProperty()
-  @IsDefined()
-  name: string;
+  @ApiPropertyOptional()
+  id?: string;
 
   @ApiProperty()
   @IsDefined()
+  @MaxLength(65)
+  @IsNotEmpty()
   title: string;
 
   @ApiPropertyOptional()
-  description?: string;
+  @IsOptional()
+  @MaxLength(255)
+  description: string | null;
 
   @ApiProperty()
   @IsDefined()
+  @MaxLength(255)
+  @IsNotEmpty()
   answer: string;
-
-  @ApiProperty()
-  categoryId: string;
 
   @ApiProperty()
   createdAt: Date;

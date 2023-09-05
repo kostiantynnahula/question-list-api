@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from '@prisma/client';
+import { QuestionEntity } from 'src/questions/entities/question.entity';
 
 export class CategoryEntity implements Category {
   constructor(partial: Partial<CategoryEntity>) {
@@ -14,6 +15,9 @@ export class CategoryEntity implements Category {
 
   @ApiProperty()
   testId: string;
+
+  @ApiProperty()
+  questions: QuestionEntity[];
 
   @ApiProperty()
   createdAt: Date;

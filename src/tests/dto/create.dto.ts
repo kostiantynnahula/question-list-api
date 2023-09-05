@@ -1,19 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined } from 'class-validator';
-import { CategoryDto } from 'src/categories/dto/category.dto';
+import { CategoryDto } from './category.dto';
 
-export class TestDto {
+export class CreateTestDto {
   @ApiProperty()
   @IsDefined()
   name: string;
 
   @ApiProperty()
   @IsDefined()
-  user: number;
-
-  @ApiProperty()
-  @IsDefined()
-  category: CategoryDto;
+  categories: CategoryDto[];
 
   @ApiProperty()
   createdAt: Date;
