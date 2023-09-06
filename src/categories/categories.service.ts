@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClient, PrismaPromise } from '@prisma/client';
 import * as runtime from '@prisma/client/runtime/library';
-import { CategoryDto } from 'src/tests/dto/category.dto';
+import { CategoryDto } from 'src/categories/dto/category.dto';
 import { CategoryEntity } from './entities/category.entity';
+import { QuestionsService } from 'src/questions/questions.service';
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private questionService: QuestionsService,
+  ) {}
 
   async updateManyTx(
     tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
@@ -36,6 +40,11 @@ export class CategoriesService {
 
     for await (const category of existedCategories) {
       await this.updateOneTx(tx, category);
+      await this.questionService.updateManyTx(
+        tx,
+        category.questions,
+        category.id,
+      );
     }
 
     await this.createManyTx(tx, newCategories, testId);

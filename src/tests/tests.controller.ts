@@ -7,6 +7,7 @@ import {
   UseGuards,
   Patch,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { TestsService } from './tests.service';
 import { Auth } from 'src/utils/decorators/auth.decorator';
@@ -14,7 +15,6 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CreateTestDto } from './dto/create.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateTestDto } from './dto/update.dto';
-import { NotFoundError } from 'rxjs';
 
 @Controller('tests')
 @UseGuards(JwtAuthGuard)
@@ -33,7 +33,13 @@ export class TestsController {
 
   @Get(':id')
   async findOne(@Auth() user: UserEntity, @Param('id') id: string) {
-    return await this.service.findOne(id, user.id);
+    const test = await this.service.findOne(id, user.id);
+
+    if (!test) {
+      return new NotFoundException();
+    }
+
+    return test;
   }
 
   @Patch(':id')
@@ -45,7 +51,7 @@ export class TestsController {
     const test = await this.service.findOne(id, user.id);
 
     if (!test) {
-      throw new NotFoundError('The test was not found');
+      throw new NotFoundException('The test was not found');
     }
 
     await this.service.updateOne(id, body);

@@ -71,37 +71,6 @@ export class TestsService {
 
       if (data.categories) {
         await this.categoryService.updateManyTx(tx, data.categories, id);
-
-        // for await (const category of data.categories) {
-        //   await tx.category.update({
-        //     data: {
-        //       name: category.name,
-        //     },
-        //     where: {
-        //       id: category.id,
-        //     },
-        //   });
-
-        //   for await (const question of category.questions) {
-        //     if (question.id) {
-        //       await tx.question.update({
-        //         data: question,
-        //         where: {
-        //           id: question.id,
-        //         },
-        //       });
-        //     } else {
-        //       await tx.question.create({
-        //         data: {
-        //           title: question.title,
-        //           description: question.description,
-        //           answer: question.answer,
-        //           categoryId: category.id,
-        //         },
-        //       });
-        //     }
-        //   }
-        // }
       }
     });
   }
