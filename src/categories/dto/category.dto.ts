@@ -5,7 +5,9 @@ import {
   IsNotEmpty,
   IsOptional,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { QuestionDto } from 'src/questions/dto/question.dto';
 
 export class CategoryDto {
@@ -21,5 +23,7 @@ export class CategoryDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => QuestionDto)
   questions: QuestionDto[];
 }
