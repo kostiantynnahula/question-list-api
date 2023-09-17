@@ -17,6 +17,7 @@ model User {
   updatedAt      DateTime       @updatedAt
   reset_password ResetPassword?
   tests          Test[]
+  candidates     Candidate[]
 }
 
 model ResetPassword {
@@ -77,6 +78,8 @@ model Candidate {
   resumeLink String
   interviews Interview[]
   answers    Answer[]
+  creator    User        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creatorId  Int
   createdAt  DateTime    @default(now())
 }
 

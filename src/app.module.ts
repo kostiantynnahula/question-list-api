@@ -10,6 +10,7 @@ import { MailsModule } from './mails/mails.module';
 import { CategoriesModule } from './categories/categories.module';
 import { QuestionsModule } from './questions/questions.module';
 import { TestsModule } from './tests/tests.module';
+import { CandidatesModule } from './candidates/candidates.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TestsModule } from './tests/tests.module';
     CategoriesModule,
     QuestionsModule,
     TestsModule,
+    CandidatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
