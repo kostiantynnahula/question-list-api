@@ -22,5 +22,8 @@ export class InterviewEntity implements Interview {
   candidateId: string;
 
   @ApiProperty()
+  userId: number;
+
+  @ApiProperty()
   createdAt: Date;
 }

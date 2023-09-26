@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTestDto } from 'src/tests/dto/create.dto';
 import { UpdateTestDto } from 'src/tests/dto/update.dto';
 import { CategoriesService } from 'src/categories/categories.service';
+import { PaginationQuery } from 'src/utils/models/pagination';
 
 @Injectable()
 export class TestsService {
@@ -28,7 +29,8 @@ export class TestsService {
     return result;
   }
 
-  async findList(userId: number) {
+  async findList(userId: number, query: PaginationQuery) {
+    const { take = 10, skip = 0 } = query;
     return this.prisma.test.findMany({
       where: {
         userId,
@@ -40,6 +42,8 @@ export class TestsService {
           },
         },
       },
+      take: Number(take),
+      skip: Number(skip),
     });
   }
 

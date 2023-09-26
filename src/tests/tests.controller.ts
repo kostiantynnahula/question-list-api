@@ -8,6 +8,7 @@ import {
   Patch,
   Delete,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { TestsService } from './tests.service';
 import { Auth } from 'src/utils/decorators/auth.decorator';
@@ -15,6 +16,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CreateTestDto } from './dto/create.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateTestDto } from './dto/update.dto';
+import { PaginationQuery } from 'src/utils/models/pagination';
 
 @Controller('tests')
 @UseGuards(JwtAuthGuard)
@@ -27,8 +29,8 @@ export class TestsController {
   }
 
   @Get()
-  async findList(@Auth() user: UserEntity) {
-    return await this.service.findList(user.id);
+  async findList(@Auth() user: UserEntity, @Query() query: PaginationQuery) {
+    return await this.service.findList(user.id, query);
   }
 
   @Get(':id')

@@ -18,6 +18,7 @@ model User {
   reset_password ResetPassword?
   tests          Test[]
   candidates     Candidate[]
+  interviews     Interview[]
 }
 
 model ResetPassword {
@@ -36,7 +37,6 @@ model Test {
   userId     Int
   categories Category[]
   interviews Interview[]
-  answers    Answer[]
   createdAt  DateTime    @default(now())
 }
 
@@ -68,6 +68,9 @@ model Interview {
   testId      String
   candidate   Candidate @relation(fields: [candidateId], references: [id])
   candidateId String
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  answers     Answer[]
   createdAt   DateTime  @default(now())
 }
 
@@ -77,7 +80,6 @@ model Candidate {
   email      String      @unique
   resumeLink String
   interviews Interview[]
-  answers    Answer[]
   creator    User        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   creatorId  Int
   createdAt  DateTime    @default(now())
@@ -85,11 +87,9 @@ model Candidate {
 
 model Answer {
   id          String    @id @default(uuid())
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
-  candidateId String
-  test        Test      @relation(fields: [testId], references: [id])
-  testId      String
   question    Question  @relation(fields: [questionId], references: [id])
   questionId  String
+  interview   Interview @relation(fields: [interviewId], references: [id])
+  interviewId String
   createdAt   DateTime  @default(now())
 }
