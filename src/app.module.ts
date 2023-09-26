@@ -11,6 +11,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { QuestionsModule } from './questions/questions.module';
 import { TestsModule } from './tests/tests.module';
 import { CandidatesModule } from './candidates/candidates.module';
+import { InterviewsModule } from './interviews/interviews.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CandidatesModule } from './candidates/candidates.module';
     QuestionsModule,
     TestsModule,
     CandidatesModule,
+    InterviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
