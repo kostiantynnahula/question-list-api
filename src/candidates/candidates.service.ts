@@ -14,13 +14,38 @@ export class CandidatesService {
   }
 
   async findListByCreatorId(creatorId: number, query: PaginationQuery) {
-    const { take = 10, skip = 0 } = query;
+    const {
+      take = 10,
+      skip = 0,
+      order = 'desc',
+      orderBy = 'createdAt',
+      search = '',
+    } = query;
+
+    const where: Record<string, any> = { creatorId };
+
+    if (search.length) {
+      where.OR = [
+        {
+          email: {
+            contains: search,
+          },
+        },
+        {
+          fullName: {
+            contains: search,
+          },
+        },
+      ];
+    }
+
     return this.prisma.candidate.findMany({
-      where: {
-        creatorId,
-      },
+      where,
       take: Number(take),
       skip: Number(skip),
+      orderBy: {
+        [orderBy]: order,
+      },
     });
   }
 
