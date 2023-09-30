@@ -12,6 +12,9 @@ export class InterviewsService {
   async findById(id: string, userId: string) {
     return await this.prisma.interview.findFirst({
       where: { id, userId },
+      include: {
+        candidate: true,
+      },
     });
   }
 
@@ -20,6 +23,9 @@ export class InterviewsService {
     return await this.prisma.interview.findMany({
       where: {
         userId,
+      },
+      include: {
+        candidate: true,
       },
       take,
       skip,
