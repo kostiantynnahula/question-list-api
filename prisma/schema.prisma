@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id             Int            @id @default(autoincrement())
+  id             String         @id @default(uuid())
   username       String
   email          String         @unique
   password       String
@@ -22,11 +22,11 @@ model User {
 }
 
 model ResetPassword {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   email     String
   token     String   @unique
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int      @unique
+  userId    String   @unique
   createdAt DateTime @default(now())
 }
 
@@ -34,7 +34,7 @@ model Test {
   id         String      @id @default(uuid())
   name       String
   user       User        @relation(fields: [userId], references: [id])
-  userId     Int
+  userId     String
   categories Category[]
   interviews Interview[]
   createdAt  DateTime    @default(now())
@@ -61,17 +61,24 @@ model Question {
 }
 
 model Interview {
-  id          String    @id @default(uuid())
+  id          String         @id @default(uuid())
   name        String
   description String
-  test        Test      @relation(fields: [testId], references: [id])
+  test        Test           @relation(fields: [testId], references: [id])
   testId      String
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  candidate   Candidate      @relation(fields: [candidateId], references: [id])
   candidateId String
-  user        User      @relation(fields: [userId], references: [id])
-  userId      Int
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String
   answers     Answer[]
-  createdAt   DateTime  @default(now())
+  status      InteviewStatus @default(CREATED)
+  createdAt   DateTime       @default(now())
+}
+
+enum InteviewStatus {
+  CREATED
+  STARTED
+  COMPLETED
 }
 
 model Candidate {
@@ -80,8 +87,8 @@ model Candidate {
   email      String      @unique
   resumeLink String
   interviews Interview[]
-  creator    User        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
-  creatorId  Int
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
   createdAt  DateTime    @default(now())
 }
 
@@ -91,5 +98,6 @@ model Answer {
   questionId  String
   interview   Interview @relation(fields: [interviewId], references: [id])
   interviewId String
+  correct     Boolean
   createdAt   DateTime  @default(now())
 }

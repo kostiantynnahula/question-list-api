@@ -19,7 +19,7 @@ export class CandidateEntity implements Candidate {
   resumeLink: string;
 
   @ApiProperty()
-  creatorId: number;
+  userId: string;
 
   @ApiProperty()
   createdAt: Date;

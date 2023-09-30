@@ -18,7 +18,7 @@ export class ResetPasswordService {
     return this.prisma.resetPassword.findFirst({ where: { token } });
   }
 
-  async deleteById(id: number): Promise<void> {
+  async deleteById(id: string): Promise<void> {
     this.prisma.resetPassword.delete({ where: { id } });
   }
 }

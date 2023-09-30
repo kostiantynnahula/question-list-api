@@ -8,5 +8,5 @@ export class CreateResetPasswordDto {
   token: string;
 
   @ApiProperty()
-  userId: number;
+  userId: string;
 }

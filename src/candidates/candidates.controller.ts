@@ -25,7 +25,7 @@ export class CandidatesController {
 
   @Get()
   async findList(@Auth() user: UserEntity, @Query() query: PaginationQuery) {
-    return await this.service.findListByCreatorId(user.id, query);
+    return await this.service.findList(user.id, query);
   }
 
   @Get(':id')

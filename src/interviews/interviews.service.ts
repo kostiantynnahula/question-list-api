@@ -3,18 +3,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateInterviewDto } from 'src/interviews/dto/create.dto';
 import { UpdateInterviewDto } from 'src/interviews/dto/update.dto';
 import { PaginationQuery } from 'src/utils/models/pagination';
+import { $Enums } from '@prisma/client';
 
 @Injectable()
 export class InterviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: string, userId: number) {
+  async findById(id: string, userId: string) {
     return await this.prisma.interview.findFirst({
       where: { id, userId },
     });
   }
 
-  async findList(userId: number, pagination: PaginationQuery) {
+  async findList(userId: string, pagination: PaginationQuery) {
     const { take = 10, skip = 0 } = pagination;
     return await this.prisma.interview.findMany({
       where: {
@@ -25,20 +26,20 @@ export class InterviewsService {
     });
   }
 
-  async create(data: CreateInterviewDto, userId: number) {
+  async create(data: CreateInterviewDto, userId: string) {
     return await this.prisma.interview.create({
-      data: { ...data, userId },
+      data: { ...data, userId, status: $Enums.InteviewStatus.CREATED },
     });
   }
 
-  async updateById(data: UpdateInterviewDto, id: string, userId: number) {
+  async updateById(data: UpdateInterviewDto, id: string, userId: string) {
     return await this.prisma.interview.update({
       where: { id, userId },
       data,
     });
   }
 
-  async deleteById(id: string, userId: number) {
+  async deleteById(id: string, userId: string) {
     return await this.prisma.interview.delete({
       where: { id, userId },
     });

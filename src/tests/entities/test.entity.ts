@@ -14,7 +14,7 @@ export class TestEntity implements Test {
   name: string;
 
   @ApiProperty()
-  userId: number;
+  userId: string;
 
   @ApiProperty()
   categories: CategoryEntity[];

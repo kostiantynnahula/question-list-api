@@ -117,7 +117,7 @@ export class AuthService {
     await this.resetService.deleteById(item.id);
   }
 
-  async updateProfile(id: number, data: UpdateUserDto) {
+  async updateProfile(id: string, data: UpdateUserDto) {
     if (data.password) {
       data.password = await HashService.hash(data.password);
     }

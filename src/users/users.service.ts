@@ -12,7 +12,7 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
-  async findById(id: number): Promise<UserEntity> {
+  async findById(id: string): Promise<UserEntity> {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
@@ -20,7 +20,7 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
-  async updateById(id: number, data: UpdateUserDto) {
+  async updateById(id: string, data: UpdateUserDto) {
     return this.prisma.user.update({
       where: { id },
       data,

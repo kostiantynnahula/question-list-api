@@ -9,11 +9,11 @@ import { PaginationQuery } from 'src/utils/models/pagination';
 export class CandidatesService {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: string, creatorId: number): Promise<CandidateEntity> {
-    return this.prisma.candidate.findUnique({ where: { id, creatorId } });
+  async findById(id: string, userId: string): Promise<CandidateEntity> {
+    return this.prisma.candidate.findUnique({ where: { id, userId } });
   }
 
-  async findListByCreatorId(creatorId: number, query: PaginationQuery) {
+  async findList(userId: string, query: PaginationQuery) {
     const {
       take = 10,
       skip = 0,
@@ -22,7 +22,7 @@ export class CandidatesService {
       search = '',
     } = query;
 
-    const where: Record<string, any> = { creatorId };
+    const where: Record<string, any> = { userId };
 
     if (search.length) {
       where.OR = [
@@ -49,18 +49,18 @@ export class CandidatesService {
     });
   }
 
-  async updateById(id: string, data: UpdateCandidateDto, creatorId: number) {
+  async updateById(id: string, data: UpdateCandidateDto, userId: string) {
     return this.prisma.candidate.update({
-      where: { id, creatorId },
+      where: { id, userId },
       data,
     });
   }
 
-  async create(data: CreateCandidateDto, creatorId: number) {
-    return this.prisma.candidate.create({ data: { ...data, creatorId } });
+  async create(data: CreateCandidateDto, userId: string) {
+    return this.prisma.candidate.create({ data: { ...data, userId } });
   }
 
-  async deleteById(id: string, creatorId: number) {
-    return this.prisma.candidate.delete({ where: { id, creatorId } });
+  async deleteById(id: string, userId: string) {
+    return this.prisma.candidate.delete({ where: { id, userId } });
   }
 }

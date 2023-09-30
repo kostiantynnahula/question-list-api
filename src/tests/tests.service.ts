@@ -12,7 +12,7 @@ export class TestsService {
     private categoryService: CategoriesService,
   ) {}
 
-  async create(data: CreateTestDto, userId: number) {
+  async create(data: CreateTestDto, userId: string) {
     const result = await this.prisma.$transaction(async (tx) => {
       const test = await tx.test.create({
         data: {
@@ -29,7 +29,7 @@ export class TestsService {
     return result;
   }
 
-  async findList(userId: number, query: PaginationQuery) {
+  async findList(userId: string, query: PaginationQuery) {
     const { take = 10, skip = 0 } = query;
     return this.prisma.test.findMany({
       where: {
@@ -47,7 +47,7 @@ export class TestsService {
     });
   }
 
-  async findOne(id: string, userId: number) {
+  async findOne(id: string, userId: string) {
     return this.prisma.test.findFirst({
       where: { id, userId },
       include: {
@@ -79,7 +79,7 @@ export class TestsService {
     });
   }
 
-  async deleteOne(id: string, userId: number) {
+  async deleteOne(id: string, userId: string) {
     return await this.prisma.test.delete({
       where: {
         id,

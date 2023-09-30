@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Interview } from '@prisma/client';
+import { $Enums, Interview } from '@prisma/client';
 
 export class InterviewEntity implements Interview {
   constructor(partial: Partial<InterviewEntity>) {
@@ -22,7 +22,10 @@ export class InterviewEntity implements Interview {
   candidateId: string;
 
   @ApiProperty()
-  userId: number;
+  userId: string;
+
+  @ApiProperty()
+  status: $Enums.InteviewStatus;
 
   @ApiProperty()
   createdAt: Date;

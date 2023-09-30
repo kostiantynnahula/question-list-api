@@ -7,7 +7,7 @@ export class ResetPasswordEntity implements ResetPassword {
   }
 
   @ApiProperty()
-  id: number;
+  id: string;
 
   @ApiProperty()
   email: string;
@@ -16,7 +16,7 @@ export class ResetPasswordEntity implements ResetPassword {
   token: string;
 
   @ApiProperty()
-  userId: number;
+  userId: string;
 
   @ApiProperty()
   createdAt: Date;
