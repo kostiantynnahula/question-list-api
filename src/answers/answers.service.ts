@@ -7,10 +7,13 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class AnswersService {
   constructor(private prisma: PrismaService) {}
 
-  async findList(id: string, userId: string): Promise<Array<AnswerEntity>> {
+  async findList(
+    interviewId: string,
+    userId: string,
+  ): Promise<Array<AnswerEntity>> {
     return await this.prisma.answer.findMany({
       where: {
-        interviewId: id,
+        interviewId,
         interview: {
           userId,
         },

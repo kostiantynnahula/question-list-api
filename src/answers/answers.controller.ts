@@ -15,12 +15,6 @@ export class AnswersController {
     return await this.service.findOne(id, user.id);
   }
 
-  @Get(':interviewId/interview')
-  async findList(@Auth() user: UserEntity, @Param('interviewId') id: string) {
-    console.log('test');
-    return await this.service.findList(id, user.id);
-  }
-
   @Patch(':id')
   async update(
     @Auth() user: UserEntity,

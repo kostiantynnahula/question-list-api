@@ -106,4 +106,9 @@ export class InterviewsController {
 
     return { ...interview, status: $Enums.InteviewStatus.STARTED };
   }
+
+  @Get(':id/answers')
+  async answers(@Auth() user: UserEntity, @Param('id') id: string) {
+    return await this.answersService.findList(id, user.id);
+  }
 }
