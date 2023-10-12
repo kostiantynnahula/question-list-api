@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { AnswerEntity } from 'src/answers/answer.entity';
-import { CreateAnswerDto } from 'src/answers/dto/create.dto';
-import { UpdateAnswerDto } from 'src/answers/dto/update.dto';
+import { AnswerDto } from 'src/answers/dto/answer.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AnswersService {
   constructor(private prisma: PrismaService) {}
 
-  findList(id: string, userId: string): Promise<Array<AnswerEntity>> {
-    return this.prisma.answer.findMany({
+  async findList(id: string, userId: string): Promise<Array<AnswerEntity>> {
+    return await this.prisma.answer.findMany({
       where: {
         interviewId: id,
         interview: {
@@ -19,8 +18,8 @@ export class AnswersService {
     });
   }
 
-  findOne(id: string, userId: string): Promise<AnswerEntity> {
-    return this.prisma.answer.findFirst({
+  async findOne(id: string, userId: string): Promise<AnswerEntity> {
+    return await this.prisma.answer.findFirst({
       where: {
         id,
         interview: { userId },
@@ -28,18 +27,22 @@ export class AnswersService {
     });
   }
 
-  createOne(data: CreateAnswerDto): Promise<AnswerEntity> {
-    return this.prisma.answer.create({ data });
-  }
-
-  updateOne(
+  async updateOne(
     id: string,
-    data: UpdateAnswerDto,
+    data: AnswerDto,
     userId: string,
   ): Promise<AnswerEntity> {
+    const { correct } = data;
+
     return this.prisma.answer.update({
-      data,
+      data: { correct },
       where: { id, interview: { userId } },
     });
+  }
+
+  async createEmptyAnswers(
+    data: Array<Pick<AnswerEntity, 'questionId' | 'interviewId'>>,
+  ) {
+    return await this.prisma.answer.createMany({ data });
   }
 }

@@ -16,7 +16,7 @@ export class AnswerEntity implements Answer {
   interviewId: string;
 
   @ApiProperty()
-  correct: boolean;
+  correct: boolean | null = null;
 
   @ApiProperty()
   createdAt: Date;

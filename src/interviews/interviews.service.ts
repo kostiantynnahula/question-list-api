@@ -50,4 +50,21 @@ export class InterviewsService {
       where: { id, userId },
     });
   }
+
+  async findIterviewTest(id: string, userId: string) {
+    return await this.prisma.interview.findFirst({
+      where: { id, userId },
+      include: {
+        test: {
+          include: {
+            categories: {
+              include: {
+                questions: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }

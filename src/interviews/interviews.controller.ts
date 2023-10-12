@@ -17,11 +17,17 @@ import { UpdateInterviewDto } from 'src/interviews/dto/update.dto';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Auth } from 'src/utils/decorators/auth.decorator';
 import { PaginationQuery } from 'src/utils/models/pagination';
-
+import { QuestionsService } from 'src/questions/questions.service';
+import { AnswersService } from 'src/answers/answers.service';
+import { $Enums } from '@prisma/client';
 @Controller('interviews')
 @UseGuards(JwtAuthGuard)
 export class InterviewsController {
-  constructor(private readonly service: InterviewsService) {}
+  constructor(
+    private readonly service: InterviewsService,
+    private readonly questionsService: QuestionsService,
+    private readonly answersService: AnswersService,
+  ) {}
 
   @Get()
   async findList(@Auth() user: UserEntity, @Query() query: PaginationQuery) {
@@ -35,6 +41,14 @@ export class InterviewsController {
       throw new NotFoundException();
     }
     return interview;
+  }
+
+  @Get(':id/test')
+  async findTestByInterviewId(
+    @Auth() user: UserEntity,
+    @Param('id') id: string,
+  ) {
+    return await this.service.findIterviewTest(id, user.id);
   }
 
   @Post()
@@ -66,5 +80,30 @@ export class InterviewsController {
     }
 
     return await this.service.deleteById(id, user.id);
+  }
+
+  @Post(':id/start')
+  async start(@Auth() user: UserEntity, @Param('id') id: string) {
+    const interview = await this.service.findById(id, user.id);
+    if (interview.status === $Enums.InteviewStatus.STARTED) {
+      return interview;
+    }
+    const ids = await this.questionsService.findIdsByInterviewId(
+      interview.testId,
+    );
+    const answersData = ids.map((questionId) => ({
+      questionId,
+      interviewId: id,
+    }));
+
+    await this.answersService.createEmptyAnswers(answersData);
+
+    await this.service.updateById(
+      { status: $Enums.InteviewStatus.STARTED },
+      id,
+      user.id,
+    );
+
+    return { ...interview, status: $Enums.InteviewStatus.STARTED };
   }
 }

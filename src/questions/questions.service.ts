@@ -93,4 +93,29 @@ export class QuestionsService {
       });
     }
   }
+
+  async findIdsByInterviewId(id: string): Promise<string[]> {
+    const categories = await this.prisma.category.findMany({
+      where: {
+        testId: id,
+      },
+      select: {
+        questions: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    const ids: string[] = [];
+
+    // TODO simplify it
+    categories.forEach((category) => {
+      const list = category.questions.map((q) => q.id);
+      ids.push(...list);
+    });
+
+    return ids;
+  }
 }

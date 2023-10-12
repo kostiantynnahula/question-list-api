@@ -8,5 +8,6 @@ import { InterviewsModule } from 'src/interviews/interviews.module';
   imports: [PrismaModule, InterviewsModule],
   controllers: [AnswersController],
   providers: [AnswersService],
+  exports: [AnswersService],
 })
 export class AnswersModule {}

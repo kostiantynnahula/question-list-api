@@ -98,6 +98,6 @@ model Answer {
   questionId  String
   interview   Interview @relation(fields: [interviewId], references: [id])
   interviewId String
-  correct     Boolean
+  correct     Boolean?
   createdAt   DateTime  @default(now())
 }

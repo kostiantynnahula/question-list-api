@@ -11,5 +11,6 @@ import { QuestionsService } from 'src/questions/questions.service';
   imports: [PrismaModule, CategoriesModule, QuestionsModule],
   controllers: [TestsController],
   providers: [TestsService, CategoriesService, QuestionsService],
+  exports: [TestsService],
 })
 export class TestsModule {}
