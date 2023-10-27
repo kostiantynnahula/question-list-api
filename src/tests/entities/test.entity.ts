@@ -20,5 +20,8 @@ export class TestEntity implements Test {
   categories: CategoryEntity[];
 
   @ApiProperty()
+  isTemplate: boolean;
+
+  @ApiProperty()
   createdAt: Date;
 }
