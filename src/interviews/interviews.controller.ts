@@ -108,7 +108,14 @@ export class InterviewsController {
   }
 
   @Get(':id/answers')
-  async answers(@Auth() user: UserEntity, @Param('id') id: string) {
+  async answers(
+    @Auth() user: UserEntity,
+    @Param('id') id: string,
+    @Query('extended') extended: boolean,
+  ) {
+    if (extended) {
+      return await this.answersService.findExtendedList(id, user.id);
+    }
     return await this.answersService.findList(id, user.id);
   }
 }

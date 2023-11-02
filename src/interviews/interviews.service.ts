@@ -2,8 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateInterviewDto } from 'src/interviews/dto/create.dto';
 import { UpdateInterviewDto } from 'src/interviews/dto/update.dto';
-import { PaginationQuery } from 'src/utils/models/pagination';
-import { $Enums } from '@prisma/client';
+import {
+  PaginationQuery,
+  PaginationResponse,
+} from 'src/utils/models/pagination';
+import { $Enums, Interview } from '@prisma/client';
 
 @Injectable()
 export class InterviewsService {
@@ -18,18 +21,35 @@ export class InterviewsService {
     });
   }
 
-  async findList(userId: string, pagination: PaginationQuery) {
-    const { take = 10, skip = 0 } = pagination;
-    return await this.prisma.interview.findMany({
+  async findList(
+    userId: string,
+    query: PaginationQuery,
+  ): Promise<PaginationResponse<Interview>> {
+    const { take = 10, skip = 0, order, orderBy, search } = query;
+    const searchParams = {
       where: {
         userId,
-      },
-      include: {
-        candidate: true,
+        name: {
+          contains: search,
+        },
       },
       take,
       skip,
-    });
+    };
+    const [total, list] = await this.prisma.$transaction([
+      this.prisma.interview.count(searchParams),
+      this.prisma.interview.findMany({
+        ...searchParams,
+        include: {
+          candidate: true,
+        },
+        orderBy: {
+          [orderBy]: order,
+        },
+      }),
+    ]);
+
+    return { list, total };
   }
 
   async create(data: CreateInterviewDto, userId: string) {

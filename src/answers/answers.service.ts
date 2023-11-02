@@ -21,6 +21,21 @@ export class AnswersService {
     });
   }
 
+  async findExtendedList(interviewId: string, userId: string) {
+    return await this.prisma.answer.findMany({
+      where: {
+        interviewId,
+        interview: {
+          userId,
+        },
+      },
+      include: {
+        question: true,
+        interview: true,
+      },
+    });
+  }
+
   async findOne(id: string, userId: string): Promise<AnswerEntity> {
     return await this.prisma.answer.findFirst({
       where: {

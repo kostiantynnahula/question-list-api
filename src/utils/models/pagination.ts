@@ -5,3 +5,8 @@ export type PaginationQuery = {
   orderBy?: string;
   search?: string;
 };
+
+export type PaginationResponse<T> = {
+  list: T[];
+  total: number;
+};

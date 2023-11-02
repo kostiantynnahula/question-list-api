@@ -3,7 +3,11 @@ import { CandidateEntity } from 'src/candidates/entities/candidate.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCandidateDto } from 'src/candidates/dto/create.dto';
 import { UpdateCandidateDto } from 'src/candidates/dto/update.dto';
-import { PaginationQuery } from 'src/utils/models/pagination';
+import {
+  PaginationQuery,
+  PaginationResponse,
+} from 'src/utils/models/pagination';
+import { Candidate } from '@prisma/client';
 
 @Injectable()
 export class CandidatesService {
@@ -13,7 +17,10 @@ export class CandidatesService {
     return this.prisma.candidate.findUnique({ where: { id, userId } });
   }
 
-  async findList(userId: string, query: PaginationQuery) {
+  async findList(
+    userId: string,
+    query: PaginationQuery,
+  ): Promise<PaginationResponse<Candidate>> {
     const {
       take = 10,
       skip = 0,
@@ -22,31 +29,37 @@ export class CandidatesService {
       search = '',
     } = query;
 
-    const where: Record<string, any> = { userId };
-
-    if (search.length) {
-      where.OR = [
-        {
-          email: {
-            contains: search,
+    const searchParams = {
+      where: {
+        userId,
+        OR: [
+          {
+            email: {
+              contains: search,
+            },
           },
-        },
-        {
-          fullName: {
-            contains: search,
+          {
+            fullName: {
+              contains: search,
+            },
           },
-        },
-      ];
-    }
-
-    return this.prisma.candidate.findMany({
-      where,
+        ],
+      },
       take: Number(take),
       skip: Number(skip),
-      orderBy: {
-        [orderBy]: order,
-      },
-    });
+    };
+
+    const [total, list] = await this.prisma.$transaction([
+      this.prisma.candidate.count(searchParams),
+      this.prisma.candidate.findMany({
+        ...searchParams,
+        orderBy: {
+          [orderBy]: order,
+        },
+      }),
+    ]);
+
+    return { list, total };
   }
 
   async updateById(id: string, data: UpdateCandidateDto, userId: string) {
