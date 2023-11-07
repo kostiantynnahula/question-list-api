@@ -45,8 +45,6 @@ export class CandidatesService {
           },
         ],
       },
-      take: Number(take),
-      skip: Number(skip),
     };
 
     const [total, list] = await this.prisma.$transaction([
@@ -56,10 +54,18 @@ export class CandidatesService {
         orderBy: {
           [orderBy]: order,
         },
+        take: Number(take),
+        skip: Number(skip),
       }),
     ]);
 
     return { list, total };
+  }
+
+  async findCandidatesByUserId(userId: string): Promise<Candidate[]> {
+    return await this.prisma.candidate.findMany({
+      where: { userId },
+    });
   }
 
   async updateById(id: string, data: UpdateCandidateDto, userId: string) {

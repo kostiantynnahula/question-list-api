@@ -33,8 +33,8 @@ export class InterviewsService {
           contains: search,
         },
       },
-      take,
-      skip,
+      take: Number(take),
+      skip: Number(skip),
     };
     const [total, list] = await this.prisma.$transaction([
       this.prisma.interview.count(searchParams),

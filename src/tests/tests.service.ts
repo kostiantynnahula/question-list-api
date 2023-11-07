@@ -4,6 +4,8 @@ import { CreateTestDto } from 'src/tests/dto/create.dto';
 import { UpdateTestDto } from 'src/tests/dto/update.dto';
 import { CategoriesService } from 'src/categories/categories.service';
 import { TestPaginationQuery as PaginationQuery } from './models';
+import { PaginationResponse } from 'src/utils/models/pagination';
+import { Test } from '@prisma/client';
 
 @Injectable()
 export class TestsService {
@@ -29,26 +31,50 @@ export class TestsService {
     return result;
   }
 
-  async findList(userId: string, query: PaginationQuery) {
-    const { take = 10, skip = 0 } = query;
+  async findList(
+    userId: string,
+    query: PaginationQuery,
+  ): Promise<PaginationResponse<Test>> {
+    const {
+      take = 10,
+      skip = 0,
+      order = 'desc',
+      orderBy = 'createdAt',
+      search = '',
+    } = query;
 
     const isTemplate = query.isTemplate ? Boolean(query.isTemplate) : undefined;
 
-    return this.prisma.test.findMany({
+    const searchParams = {
       where: {
         userId,
         isTemplate,
-      },
-      include: {
-        categories: {
-          include: {
-            questions: true,
-          },
+        name: {
+          contains: search,
         },
       },
-      take: Number(take),
-      skip: Number(skip),
-    });
+    };
+
+    const [total, list] = await this.prisma.$transaction([
+      this.prisma.test.count(searchParams),
+      this.prisma.test.findMany({
+        ...searchParams,
+        include: {
+          categories: {
+            include: {
+              questions: true,
+            },
+          },
+        },
+        orderBy: {
+          [orderBy]: order,
+        },
+        skip: Number(skip),
+        take: Number(take),
+      }),
+    ]);
+
+    return { list, total };
   }
 
   async findOne(id: string, userId: string) {

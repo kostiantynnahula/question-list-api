@@ -28,6 +28,11 @@ export class CandidatesController {
     return await this.service.findList(user.id, query);
   }
 
+  @Get('list')
+  async findCandidates(@Auth() user: UserEntity) {
+    return await this.service.findCandidatesByUserId(user.id);
+  }
+
   @Get(':id')
   async findOne(@Auth() user: UserEntity, @Param('id') id: string) {
     return await this.service.findById(id, user.id);
