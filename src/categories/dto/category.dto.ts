@@ -8,7 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { QuestionDto } from 'src/questions/dto/question.dto';
+// import { QuestionDto } from 'src/questions/dto/question.dto';
 
 export class CategoryDto {
   @ApiPropertyOptional()
@@ -20,10 +20,10 @@ export class CategoryDto {
   @MaxLength(50)
   name: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => QuestionDto)
-  questions: QuestionDto[];
+  // @ApiPropertyOptional()
+  // @IsOptional()
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => QuestionDto)
+  // questions: QuestionDto[];
 }

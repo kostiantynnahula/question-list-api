@@ -12,99 +12,99 @@ export class CategoriesService {
     private questionService: QuestionsService,
   ) {}
 
-  async updateManyTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    categories: CategoryDto[],
-    testId: string,
-  ) {
-    const existedCategories = [];
-    const newCategories = [];
+  // async updateManyTx(
+  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
+  //   categories: CategoryDto[],
+  //   testId: string,
+  // ) {
+  //   const existedCategories = [];
+  //   const newCategories = [];
 
-    const testCategoriesIds = (await this.findListByTestTx(tx, testId)).map(
-      (category) => category.id,
-    );
+  //   const testCategoriesIds = (await this.findListByTestTx(tx, testId)).map(
+  //     (category) => category.id,
+  //   );
 
-    categories.forEach((category) => {
-      category.id
-        ? existedCategories.push(category)
-        : newCategories.push(category);
-    });
+  //   categories.forEach((category) => {
+  //     category.id
+  //       ? existedCategories.push(category)
+  //       : newCategories.push(category);
+  //   });
 
-    const existedCategoriesIds = existedCategories.map(
-      (category) => category.id,
-    );
+  //   const existedCategoriesIds = existedCategories.map(
+  //     (category) => category.id,
+  //   );
 
-    const deleteCategoriesIds = testCategoriesIds.filter(
-      (id) => !existedCategoriesIds.includes(id),
-    );
+  //   const deleteCategoriesIds = testCategoriesIds.filter(
+  //     (id) => !existedCategoriesIds.includes(id),
+  //   );
 
-    for await (const category of existedCategories) {
-      await this.updateOneTx(tx, category);
-      await this.questionService.updateManyTx(
-        tx,
-        category.questions,
-        category.id,
-      );
-    }
+  //   for await (const category of existedCategories) {
+  //     await this.updateOneTx(tx, category);
+  //     await this.questionService.updateManyTx(
+  //       tx,
+  //       category.questions,
+  //       category.id,
+  //     );
+  //   }
 
-    await this.createManyTx(tx, newCategories, testId);
+  //   await this.createManyTx(tx, newCategories, testId);
 
-    await this.deletManyTx(tx, deleteCategoriesIds);
-  }
+  //   await this.deletManyTx(tx, deleteCategoriesIds);
+  // }
 
-  async updateOneTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    { id, name }: CategoryDto,
-  ) {
-    await tx.category.update({
-      data: { name },
-      where: { id },
-    });
-  }
+  // async updateOneTx(
+  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
+  //   { id, name }: CategoryDto,
+  // ) {
+  //   await tx.category.update({
+  //     data: { name },
+  //     where: { id },
+  //   });
+  // }
 
-  async findListByTestTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    testId: string,
-  ): Promise<PrismaPromise<Omit<CategoryEntity, 'questions'>[]>> {
-    const result = await tx.category.findMany({
-      where: { testId },
-    });
+  // async findListByTestTx(
+  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
+  //   testId: string,
+  // ): Promise<PrismaPromise<Omit<CategoryEntity, 'questions'>[]>> {
+  //   const result = await tx.category.findMany({
+  //     where: { testId },
+  //   });
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  async createManyTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    categories: CategoryDto[],
-    testId: string,
-  ) {
-    for await (const category of categories) {
-      await tx.category.create({
-        data: {
-          name: category.name,
-          questions: {
-            create: category.questions,
-          },
-          test: {
-            connect: {
-              id: testId,
-            },
-          },
-        },
-      });
-    }
-  }
+  // async createManyTx(
+  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
+  //   categories: CategoryDto[],
+  //   testId: string,
+  // ) {
+  //   for await (const category of categories) {
+  //     await tx.category.create({
+  //       data: {
+  //         name: category.name,
+  //         questions: {
+  //           create: category.questions,
+  //         },
+  //         test: {
+  //           connect: {
+  //             id: testId,
+  //           },
+  //         },
+  //       },
+  //     });
+  //   }
+  // }
 
-  async deletManyTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    ids: string[],
-  ) {
-    return await tx.category.deleteMany({
-      where: {
-        id: {
-          in: ids,
-        },
-      },
-    });
-  }
+  // async deletManyTx(
+  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
+  //   ids: string[],
+  // ) {
+  //   return await tx.category.deleteMany({
+  //     where: {
+  //       id: {
+  //         in: ids,
+  //       },
+  //     },
+  //   });
+  // }
 }

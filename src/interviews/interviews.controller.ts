@@ -88,9 +88,8 @@ export class InterviewsController {
     if (interview.status === $Enums.InteviewStatus.STARTED) {
       return interview;
     }
-    const ids = await this.questionsService.findIdsByInterviewId(
-      interview.testId,
-    );
+    const ids = await this.questionsService.findIdsByTestId(interview.testId);
+
     const answersData = ids.map((questionId) => ({
       questionId,
       interviewId: id,

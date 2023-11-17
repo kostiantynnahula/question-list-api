@@ -1,7 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDefined, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsDefined,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
 
-export class QuestionDto {
+export class CreateQuestionDto {
   @ApiPropertyOptional()
   id?: string;
 
@@ -21,6 +28,23 @@ export class QuestionDto {
   @MaxLength(255)
   @IsNotEmpty()
   answer: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty()
+  @IsUUID()
+  categoryId: string;
+
+  @ApiPropertyOptional()
+  @IsDefined()
+  @IsNotEmpty()
+  @IsUUID()
+  testId: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  order: number;
 
   @ApiProperty()
   createdAt: Date;

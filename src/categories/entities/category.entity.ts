@@ -20,5 +20,8 @@ export class CategoryEntity implements Category {
   questions: QuestionEntity[];
 
   @ApiProperty()
+  order: number;
+
+  @ApiProperty()
   createdAt: Date;
 }

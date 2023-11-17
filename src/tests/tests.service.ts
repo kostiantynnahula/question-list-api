@@ -2,33 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTestDto } from 'src/tests/dto/create.dto';
 import { UpdateTestDto } from 'src/tests/dto/update.dto';
-import { CategoriesService } from 'src/categories/categories.service';
 import { TestPaginationQuery as PaginationQuery } from './models';
 import { PaginationResponse } from 'src/utils/models/pagination';
 import { Test } from '@prisma/client';
 
 @Injectable()
 export class TestsService {
-  constructor(
-    private prisma: PrismaService,
-    private categoryService: CategoriesService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateTestDto, userId: string) {
-    const result = await this.prisma.$transaction(async (tx) => {
-      const test = await tx.test.create({
-        data: {
-          name: data.name,
-          userId,
-        },
-      });
-
-      await this.categoryService.createManyTx(tx, data.categories, test.id);
-
-      return test;
+  async create(data: CreateTestDto, userId: string): Promise<Test> {
+    return await this.prisma.test.create({
+      data: {
+        name: data.name,
+        userId,
+      },
     });
-
-    return result;
   }
 
   async findList(
@@ -77,7 +65,15 @@ export class TestsService {
     return { list, total };
   }
 
-  async findOne(id: string, userId: string) {
+  async findListByUserId(userId: string): Promise<Test[]> {
+    return this.prisma.test.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async findOne(id: string, userId: string): Promise<Test> {
     return this.prisma.test.findFirst({
       where: { id, userId },
       include: {
@@ -90,27 +86,17 @@ export class TestsService {
     });
   }
 
-  async updateOne(id: string, data: UpdateTestDto) {
-    return await this.prisma.$transaction(async (tx) => {
-      if (data.name) {
-        await tx.test.update({
-          data: {
-            name: data.name,
-          },
-          where: {
-            id,
-          },
-        });
-      }
-
-      if (data.categories) {
-        await this.categoryService.updateManyTx(tx, data.categories, id);
-      }
+  async updateOne(id: string, data: UpdateTestDto): Promise<Test> {
+    return this.prisma.test.update({
+      data: {
+        name: data.name,
+      },
+      where: { id },
     });
   }
 
-  async deleteOne(id: string, userId: string) {
-    return await this.prisma.test.delete({
+  async deleteOne(id: string, userId: string): Promise<Test> {
+    return this.prisma.test.delete({
       where: {
         id,
         userId,

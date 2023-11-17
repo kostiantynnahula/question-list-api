@@ -1,121 +1,88 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaClient } from '@prisma/client';
-import * as runtime from '@prisma/client/runtime/library';
-import { QuestionDto } from 'src/questions/dto/question.dto';
-
+import { Question } from '@prisma/client';
+import { CreateQuestionDto } from 'src/questions/dto/create.dto';
+import { UpdateQuestionDto } from 'src/questions/dto/update.dto';
 @Injectable()
 export class QuestionsService {
   constructor(private prisma: PrismaService) {}
 
-  async updateManyTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    questions: QuestionDto[],
-    categoryId: string,
-  ) {
-    const existedQuestions = [];
-    const newQuestions = [];
-
-    const categoryQuestionsIds = (
-      await this.findListByCategoryTx(tx, categoryId)
-    ).map((question) => question.id);
-
-    questions.forEach((question) => {
-      question.id
-        ? existedQuestions.push(question)
-        : newQuestions.push(question);
-    });
-
-    const existedQuestionsIds = existedQuestions.map((question) => question.id);
-
-    const deleteQuestionsIds = categoryQuestionsIds.filter(
-      (id) => !existedQuestionsIds.includes(id),
-    );
-
-    for await (const question of existedQuestions) {
-      await this.updateOneTx(tx, question);
-    }
-
-    await this.createManyTx(tx, newQuestions, categoryId);
-
-    await this.deleteManyTx(tx, deleteQuestionsIds);
-  }
-
-  async findListByCategoryTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    categoryId: string,
-  ) {
-    const result = await tx.question.findMany({
-      where: { categoryId },
-    });
+  async create(
+    data: CreateQuestionDto & { userId: string },
+  ): Promise<Question> {
+    const [result] = await this.prisma.$transaction([
+      this.prisma.question.create({ data }),
+      this.prisma.question.updateMany({
+        data: {
+          order: {
+            increment: 1,
+          },
+        },
+        where: {
+          testId: data.testId,
+          order: { gte: data.order },
+        },
+      }),
+    ]);
 
     return result;
   }
 
-  async deleteManyTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    ids: string[],
-  ) {
-    return await tx.question.deleteMany({
-      where: {
-        id: {
-          in: ids,
+  async update(
+    id: string,
+    data: UpdateQuestionDto & { userId: string },
+  ): Promise<Question> {
+    const [result] = await this.prisma.$transaction([
+      this.prisma.question.update({
+        where: { id },
+        data,
+      }),
+      this.prisma.question.updateMany({
+        data: {
+          order: {
+            increment: 1,
+          },
         },
+        where: {
+          testId: data.testId,
+          order: { gte: data.order },
+        },
+      }),
+    ]);
+
+    return result;
+  }
+
+  async deleteById(id: string) {
+    return this.prisma.question.delete({
+      where: { id },
+    });
+  }
+
+  async findListByTestId(testId: string): Promise<Question[]> {
+    return this.prisma.question.findMany({
+      where: {
+        testId,
       },
     });
   }
 
-  async updateOneTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    question: QuestionDto,
-  ) {
-    return await tx.question.update({
-      data: question,
-      where: { id: question.id },
+  async findOne(id: string): Promise<Question> {
+    return await this.prisma.question.findFirst({
+      where: { id },
     });
   }
 
-  async createManyTx(
-    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-    questions: QuestionDto[],
-    categoryId: string,
-  ) {
-    for await (const question of questions) {
-      await tx.question.create({
-        data: {
-          ...question,
-          category: {
-            connect: {
-              id: categoryId,
-            },
-          },
-        },
-      });
-    }
-  }
-
-  async findIdsByInterviewId(id: string): Promise<string[]> {
-    const categories = await this.prisma.category.findMany({
+  async findIdsByTestId(testId: string): Promise<string[]> {
+    const questions = await this.prisma.question.findMany({
       where: {
-        testId: id,
+        testId,
       },
       select: {
-        questions: {
-          select: {
-            id: true,
-          },
-        },
+        id: true,
       },
     });
 
-    const ids: string[] = [];
-
-    // TODO simplify it
-    categories.forEach((category) => {
-      const list = category.questions.map((q) => q.id);
-      ids.push(...list);
-    });
-
-    return ids;
+    return questions.map((question) => question.id);
   }
 }

@@ -19,6 +19,7 @@ model User {
   interviews     Interview[]
   reset_password ResetPassword?
   tests          Test[]
+  questions      Question[]
 }
 
 model ResetPassword {
@@ -38,6 +39,7 @@ model Test {
   isTemplate Boolean     @default(false)
   categories Category[]
   interviews Interview[]
+  questions  Question[]
   user       User        @relation(fields: [userId], references: [id])
 }
 
@@ -48,17 +50,23 @@ model Category {
   createdAt DateTime   @default(now())
   test      Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
   questions Question[]
+  order     Int
 }
 
 model Question {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
   answer      String
-  categoryId  String
-  createdAt   DateTime @default(now())
+  categoryId  String?
+  createdAt   DateTime  @default(now())
   answers     Answer[]
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testId      String
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId      String?
+  order       Int
 }
 
 model Interview {

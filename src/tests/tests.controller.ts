@@ -16,7 +16,6 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CreateTestDto } from './dto/create.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateTestDto } from './dto/update.dto';
-// import { PaginationQuery } from 'src/utils/models/pagination';
 import { TestPaginationQuery as PaginationQuery } from './models';
 
 @Controller('tests')
@@ -32,6 +31,11 @@ export class TestsController {
   @Get()
   async findList(@Auth() user: UserEntity, @Query() query: PaginationQuery) {
     return await this.service.findList(user.id, query);
+  }
+
+  @Get('list')
+  async findTests(@Auth() user: UserEntity) {
+    return await this.service.findListByUserId(user.id);
   }
 
   @Get(':id')
