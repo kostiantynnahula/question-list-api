@@ -34,8 +34,11 @@ export class TestsController {
   }
 
   @Get('list')
-  async findTests(@Auth() user: UserEntity) {
-    return await this.service.findListByUserId(user.id);
+  async findTests(
+    @Auth() user: UserEntity,
+    @Query('isTemplate') isTemplate: boolean,
+  ) {
+    return await this.service.findListByUserId(user.id, isTemplate);
   }
 
   @Get(':id')

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Category } from '@prisma/client';
+import { Category, Test } from '@prisma/client';
 import { QuestionEntity } from 'src/questions/entities/question.entity';
 
 export class CategoryEntity implements Category {
@@ -17,7 +17,10 @@ export class CategoryEntity implements Category {
   testId: string;
 
   @ApiProperty()
-  questions: QuestionEntity[];
+  test?: Test;
+
+  @ApiProperty()
+  questions?: QuestionEntity[];
 
   @ApiProperty()
   order: number;

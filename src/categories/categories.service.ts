@@ -1,110 +1,84 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaClient, PrismaPromise } from '@prisma/client';
-import * as runtime from '@prisma/client/runtime/library';
-import { CategoryDto } from 'src/categories/dto/category.dto';
+import { CreateCategoryDto } from 'src/categories/dto/create.dto';
+import { UpdateCategoryDto } from 'src/categories/dto/update.dto';
 import { CategoryEntity } from './entities/category.entity';
-import { QuestionsService } from 'src/questions/questions.service';
 @Injectable()
 export class CategoriesService {
-  constructor(
-    private prisma: PrismaService,
-    private questionService: QuestionsService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  // async updateManyTx(
-  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-  //   categories: CategoryDto[],
-  //   testId: string,
-  // ) {
-  //   const existedCategories = [];
-  //   const newCategories = [];
+  /**
+   * Creates a new category.
+   * @param data The data for creating the category.
+   * @returns A promise that resolves to the created category entity.
+   */
+  async create(data: CreateCategoryDto): Promise<CategoryEntity> {
+    return this.prisma.category.create({
+      data,
+    });
+  }
 
-  //   const testCategoriesIds = (await this.findListByTestTx(tx, testId)).map(
-  //     (category) => category.id,
-  //   );
+  /**
+   * Retrieves a list of categories by test ID.
+   * @param testId - The ID of the test.
+   * @returns A promise that resolves to an array of CategoryEntity objects.
+   */
+  async findListByTestId(testId: string): Promise<CategoryEntity[]> {
+    return this.prisma.category.findMany({
+      where: {
+        testId,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+  }
 
-  //   categories.forEach((category) => {
-  //     category.id
-  //       ? existedCategories.push(category)
-  //       : newCategories.push(category);
-  //   });
+  /**
+   * Retrieves a category by its ID.
+   * @param id - The ID of the category to retrieve.
+   * @returns A Promise that resolves to the CategoryEntity object.
+   */
+  async findOne(id: string): Promise<CategoryEntity> {
+    return this.prisma.category.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        test: true,
+        questions: true,
+      },
+    });
+  }
 
-  //   const existedCategoriesIds = existedCategories.map(
-  //     (category) => category.id,
-  //   );
+  /**
+   * Updates a category by its ID.
+   * @param id - The ID of the category to update.
+   * @param data - The updated category data.
+   * @returns A promise that resolves to the updated category entity.
+   */
+  async updateOne(
+    id: string,
+    data: UpdateCategoryDto,
+  ): Promise<CategoryEntity> {
+    return this.prisma.category.update({
+      where: {
+        id,
+      },
+      data,
+    });
+  }
 
-  //   const deleteCategoriesIds = testCategoriesIds.filter(
-  //     (id) => !existedCategoriesIds.includes(id),
-  //   );
-
-  //   for await (const category of existedCategories) {
-  //     await this.updateOneTx(tx, category);
-  //     await this.questionService.updateManyTx(
-  //       tx,
-  //       category.questions,
-  //       category.id,
-  //     );
-  //   }
-
-  //   await this.createManyTx(tx, newCategories, testId);
-
-  //   await this.deletManyTx(tx, deleteCategoriesIds);
-  // }
-
-  // async updateOneTx(
-  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-  //   { id, name }: CategoryDto,
-  // ) {
-  //   await tx.category.update({
-  //     data: { name },
-  //     where: { id },
-  //   });
-  // }
-
-  // async findListByTestTx(
-  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-  //   testId: string,
-  // ): Promise<PrismaPromise<Omit<CategoryEntity, 'questions'>[]>> {
-  //   const result = await tx.category.findMany({
-  //     where: { testId },
-  //   });
-
-  //   return result;
-  // }
-
-  // async createManyTx(
-  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-  //   categories: CategoryDto[],
-  //   testId: string,
-  // ) {
-  //   for await (const category of categories) {
-  //     await tx.category.create({
-  //       data: {
-  //         name: category.name,
-  //         questions: {
-  //           create: category.questions,
-  //         },
-  //         test: {
-  //           connect: {
-  //             id: testId,
-  //           },
-  //         },
-  //       },
-  //     });
-  //   }
-  // }
-
-  // async deletManyTx(
-  //   tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
-  //   ids: string[],
-  // ) {
-  //   return await tx.category.deleteMany({
-  //     where: {
-  //       id: {
-  //         in: ids,
-  //       },
-  //     },
-  //   });
-  // }
+  /**
+   * Deletes a category by its ID.
+   * @param id The ID of the category to delete.
+   * @returns A promise that resolves to the deleted category entity.
+   */
+  async deleteOne(id: string): Promise<CategoryEntity> {
+    return this.prisma.category.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }
