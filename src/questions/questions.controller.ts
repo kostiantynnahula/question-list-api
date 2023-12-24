@@ -29,7 +29,7 @@ export class QuestionsController {
   @Post()
   async createOne(@Auth() user: UserEntity, @Body() body: CreateQuestionDto) {
     const test = await this.testsService.findOne(body.testId, user.id);
-    if (test) {
+    if (!test) {
       throw new BadRequestException("Test doesn't exist");
     }
     return await this.questionsService.create({

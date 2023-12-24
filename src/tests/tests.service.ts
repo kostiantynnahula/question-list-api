@@ -109,7 +109,11 @@ export class TestsService {
             questions: true,
           },
         },
-        questions: true,
+        questions: {
+          where: {
+            categoryId: null,
+          },
+        },
       },
     });
   }

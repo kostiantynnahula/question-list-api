@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   IsUUID,
   MaxLength,
 } from 'class-validator';
@@ -31,8 +32,7 @@ export class CreateQuestionDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsNotEmpty()
-  @IsUUID()
+  @IsString()
   categoryId: string;
 
   @ApiPropertyOptional()
