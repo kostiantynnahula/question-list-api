@@ -56,7 +56,7 @@ export class QuestionsController {
       throw new NotFoundException();
     }
 
-    return await this.questionsService.deleteById(id);
+    return await this.questionsService.deleteQuestion(question);
   }
 
   @Patch(':id')
@@ -78,6 +78,16 @@ export class QuestionsController {
       throw new NotFoundException();
     }
 
-    return await this.questionsService.update(id, { ...body, userId: user.id });
+    if (
+      body.order !== null &&
+      body.order >= 0 &&
+      body.order !== question.order
+    ) {
+      await this.questionsService.changeOrder(question, body.order);
+
+      return { ...question, ...body };
+    }
+
+    return await this.questionsService.update(question, { ...body });
   }
 }

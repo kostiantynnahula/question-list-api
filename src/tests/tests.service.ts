@@ -27,7 +27,7 @@ export class TestsService {
 
   /**
    * Finds a list of tests based on the provided parameters.
-   * 
+   *
    * @param userId - The ID of the user.
    * @param query - The pagination query parameters.
    * @returns A promise that resolves to a pagination response containing the list of tests and the total count.
@@ -80,7 +80,7 @@ export class TestsService {
 
   /**
    * Finds a list of tests by user ID.
-   * 
+   *
    * @param userId - The ID of the user.
    * @param isTemplate - Optional. Specifies whether to include template tests. Default is false.
    * @returns A promise that resolves to an array of Test objects.
@@ -106,7 +106,11 @@ export class TestsService {
       include: {
         categories: {
           include: {
-            questions: true,
+            questions: {
+              orderBy: {
+                order: 'asc',
+              },
+            },
           },
         },
         questions: {

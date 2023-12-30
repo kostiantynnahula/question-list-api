@@ -10,53 +10,115 @@ export class QuestionsService {
   async create(
     data: CreateQuestionDto & { userId: string },
   ): Promise<Question> {
-    const [result] = await this.prisma.$transaction([
-      this.prisma.question.create({ data }),
-      this.prisma.question.updateMany({
-        data: {
-          order: {
-            increment: 1,
-          },
-        },
-        where: {
-          testId: data.testId,
-          order: { gte: data.order },
-        },
-      }),
-    ]);
+    const result = this.prisma.question.create({ data });
 
     return result;
   }
 
-  async update(
-    id: string,
-    data: UpdateQuestionDto & { userId: string },
-  ): Promise<Question> {
-    const [result] = await this.prisma.$transaction([
+  async update(question: Question, data: UpdateQuestionDto): Promise<Question> {
+    if (data.categoryId !== question.categoryId) {
+      const lastQuestion = await this.findLastQuestionByCategoryId(
+        data.categoryId,
+        question.testId,
+      );
+      data.order = lastQuestion ? lastQuestion.order + 1 : 0;
+    }
+
+    const [, result] = await this.prisma.$transaction([
+      this.prisma.question.updateMany({
+        where: {
+          order: {
+            gt: question.order,
+          },
+          categoryId: question.categoryId,
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
+      }),
       this.prisma.question.update({
-        where: { id },
+        where: { id: question.id },
         data,
       }),
-      this.prisma.question.updateMany({
-        data: {
-          order: {
-            increment: 1,
-          },
-        },
-        where: {
-          testId: data.testId,
-          order: { gte: data.order },
-        },
-      }),
     ]);
 
     return result;
   }
 
-  async deleteById(id: string) {
-    return this.prisma.question.delete({
-      where: { id },
+  async findLastQuestionByCategoryId(
+    categoryId: string,
+    testId: string,
+  ): Promise<Question> {
+    const result = await this.prisma.question.findFirst({
+      where: {
+        categoryId,
+        testId,
+      },
+      orderBy: {
+        order: 'desc',
+      },
     });
+
+    return result;
+  }
+
+  async changeOrder(question: Question, newOrder: number): Promise<void> {
+    const order =
+      question.order > newOrder ? question.order - 1 : question.order + 1;
+
+    await this.prisma.$transaction([
+      this.prisma.question.updateMany({
+        where: {
+          testId: question.testId,
+          order: order,
+          categoryId: question.categoryId,
+        },
+        data: { order: question.order },
+      }),
+      this.prisma.question.update({
+        where: { id: question.id },
+        data: { order: newOrder },
+      }),
+    ]);
+  }
+
+  async decrementOrder(order: number, categoryId: string) {
+    await this.prisma.question.updateMany({
+      where: {
+        order: {
+          gte: order,
+        },
+        categoryId,
+      },
+      data: {
+        order: {
+          decrement: 1,
+        },
+      },
+    });
+  }
+
+  async deleteQuestion({ id, categoryId, order }: Question) {
+    await this.prisma.$transaction([
+      this.prisma.question.delete({
+        where: { id },
+      }),
+      this.prisma.question.updateMany({
+        where: {
+          order: {
+            gte: order,
+          },
+          categoryId,
+        },
+        data: {
+          order: {
+            decrement: 1,
+          },
+        },
+      }),
+    ]);
   }
 
   async findListByTestId(testId: string): Promise<Question[]> {
