@@ -3,9 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from 'src/categories/dto/create.dto';
 import { UpdateCategoryDto } from 'src/categories/dto/update.dto';
 import { CategoryEntity } from './entities/category.entity';
+import { CategoriesCloneHelper } from 'src/categories/categories-clone.helper';
+
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly categoriesCloneHelper: CategoriesCloneHelper,
+  ) {}
 
   /**
    * Creates a new category.
@@ -27,6 +32,9 @@ export class CategoriesService {
     return this.prisma.category.findMany({
       where: {
         testId,
+      },
+      include: {
+        questions: true,
       },
       orderBy: {
         order: 'asc',
@@ -80,5 +88,32 @@ export class CategoriesService {
         id,
       },
     });
+  }
+
+  async cloneCategoriesToTest(
+    categories: CategoryEntity[],
+    testId: string,
+    userId: string,
+  ): Promise<CategoryEntity[]> {
+    const list = this.categoriesCloneHelper.parseCategories(
+      categories,
+      testId,
+      userId,
+    );
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      for await (const item of list) {
+        const { questions, ...data } = item;
+        await tx.category.create({ data });
+
+        for await (const question of questions) {
+          await tx.question.create({ data: question });
+        }
+      }
+
+      return [];
+    });
+
+    return result as unknown as CategoryEntity[];
   }
 }

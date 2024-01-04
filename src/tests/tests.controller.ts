@@ -17,11 +17,17 @@ import { CreateTestDto } from './dto/create.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UpdateTestDto } from './dto/update.dto';
 import { TestPaginationQuery as PaginationQuery } from './models';
+import { CategoriesService } from 'src/categories/categories.service';
+import { QuestionsService } from 'src/questions/questions.service';
+import { CloneTestDto } from './dto/clone.dto';
 
 @Controller('tests')
 @UseGuards(JwtAuthGuard)
 export class TestsController {
-  constructor(private readonly service: TestsService) {}
+  constructor(
+    private readonly service: TestsService,
+    private readonly categoryService: CategoriesService,
+  ) {}
 
   @Post()
   async create(@Auth() user: UserEntity, @Body() body: CreateTestDto) {
@@ -31,6 +37,35 @@ export class TestsController {
   @Get()
   async findList(@Auth() user: UserEntity, @Query() query: PaginationQuery) {
     return await this.service.findList(user.id, query);
+  }
+
+  @Post(':id/clone')
+  async cloneTemplate(
+    @Auth() user: UserEntity,
+    @Body() { templateId }: CloneTestDto,
+    @Param('id') id: string,
+  ) {
+    const template = await this.service.findOne(templateId, user.id);
+
+    const test = await this.service.findOneByUserId(id, user.id);
+
+    if (!test) {
+      throw new NotFoundException('The test was not found');
+    }
+
+    if (!template) {
+      throw new NotFoundException('The template was not found');
+    }
+
+    const categories = await this.categoryService.findListByTestId(template.id);
+
+    const result = await this.categoryService.cloneCategoriesToTest(
+      categories,
+      id,
+      user.id,
+    );
+
+    return result;
   }
 
   @Get('list')

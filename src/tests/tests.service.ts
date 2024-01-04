@@ -19,7 +19,7 @@ export class TestsService {
   async create(data: CreateTestDto, userId: string): Promise<Test> {
     return await this.prisma.test.create({
       data: {
-        name: data.name,
+        ...data,
         userId,
       },
     });
@@ -122,6 +122,12 @@ export class TestsService {
     });
   }
 
+  async findOneByUserId(id: string, userId: string): Promise<Test> {
+    return this.prisma.test.findFirst({
+      where: { id, userId },
+    });
+  }
+
   /**
    * Updates a test with the specified ID.
    * @param id - The ID of the test to update.
@@ -132,6 +138,7 @@ export class TestsService {
     return this.prisma.test.update({
       data: {
         name: data.name,
+        isTemplate: data.isTemplate,
       },
       where: { id },
     });
