@@ -4,6 +4,9 @@ import { CreateCategoryDto } from 'src/categories/dto/create.dto';
 import { UpdateCategoryDto } from 'src/categories/dto/update.dto';
 import { CategoryEntity } from './entities/category.entity';
 import { CategoriesCloneHelper } from 'src/categories/categories-clone.helper';
+import { Category } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import * as runtime from '@prisma/client/runtime/library';
 
 @Injectable()
 export class CategoriesService {
@@ -78,18 +81,29 @@ export class CategoriesService {
   }
 
   /**
-   * Deletes a category by its ID.
-   * @param id The ID of the category to delete.
-   * @returns A promise that resolves to the deleted category entity.
+   * Deletes a category.
+   * @param category The category to delete.
    */
-  async deleteOne(id: string): Promise<CategoryEntity> {
-    return this.prisma.category.delete({
-      where: {
-        id,
-      },
+  async deleteOne(category: Category): Promise<void> {
+    this.prisma.$transaction(async (tx) => {
+      await tx.category.delete({
+        where: {
+          id: category.id,
+        },
+      });
+
+      await this.decremntOrderTx(tx, category);
     });
   }
 
+  /**
+   * Clones categories to a test.
+   *
+   * @param categories - The categories to clone.
+   * @param testId - The ID of the test.
+   * @param userId - The ID of the user.
+   * @returns A promise that resolves to an array of cloned CategoryEntity objects.
+   */
   async cloneCategoriesToTest(
     categories: CategoryEntity[],
     testId: string,
@@ -115,5 +129,51 @@ export class CategoriesService {
     });
 
     return result as unknown as CategoryEntity[];
+  }
+
+  async changeOrder(category: CategoryEntity, newOrder: number): Promise<void> {
+    await this.prisma.$transaction([
+      this.prisma.category.updateMany({
+        where: {
+          testId: category.testId,
+          order: newOrder,
+        },
+        data: { order: category.order },
+      }),
+      this.prisma.category.update({
+        where: { id: category.id },
+        data: { order: newOrder },
+      }),
+    ]);
+  }
+
+  async decremntOrderTx(
+    tx: Omit<PrismaClient, runtime.ITXClientDenyList>,
+    category: CategoryEntity,
+  ): Promise<void> {
+    await tx.category.updateMany({
+      where: {
+        testId: category.testId,
+        order: {
+          gte: category.order,
+        },
+      },
+      data: {
+        order: {
+          decrement: 1,
+        },
+      },
+    });
+  }
+
+  async findLastByTestId(testId: string): Promise<Category> {
+    return await this.prisma.category.findFirst({
+      where: {
+        testId,
+      },
+      orderBy: {
+        order: 'desc',
+      },
+    });
   }
 }

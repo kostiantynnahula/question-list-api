@@ -16,35 +16,10 @@ export class QuestionsService {
   }
 
   async update(question: Question, data: UpdateQuestionDto): Promise<Question> {
-    if (data.categoryId !== question.categoryId) {
-      const lastQuestion = await this.findLastQuestionByCategoryId(
-        data.categoryId,
-        question.testId,
-      );
-      data.order = lastQuestion ? lastQuestion.order + 1 : 0;
-    }
-
-    const [, result] = await this.prisma.$transaction([
-      this.prisma.question.updateMany({
-        where: {
-          order: {
-            gt: question.order,
-          },
-          categoryId: question.categoryId,
-        },
-        data: {
-          order: {
-            decrement: 1,
-          },
-        },
-      }),
-      this.prisma.question.update({
-        where: { id: question.id },
-        data,
-      }),
-    ]);
-
-    return result;
+    return this.prisma.question.update({
+      where: { id: question.id },
+      data,
+    });
   }
 
   async findLastQuestionByCategoryId(
@@ -65,14 +40,11 @@ export class QuestionsService {
   }
 
   async changeOrder(question: Question, newOrder: number): Promise<void> {
-    const order =
-      question.order > newOrder ? question.order - 1 : question.order + 1;
-
     await this.prisma.$transaction([
       this.prisma.question.updateMany({
         where: {
           testId: question.testId,
-          order: order,
+          order: newOrder,
           categoryId: question.categoryId,
         },
         data: { order: question.order },

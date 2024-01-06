@@ -112,6 +112,9 @@ export class TestsService {
               },
             },
           },
+          orderBy: {
+            order: 'asc',
+          },
         },
         questions: {
           where: {

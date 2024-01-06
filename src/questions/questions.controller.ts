@@ -78,6 +78,20 @@ export class QuestionsController {
       throw new NotFoundException();
     }
 
+    const lastOrder =
+      (
+        await this.questionsService.findLastQuestionByCategoryId(
+          question.categoryId,
+          question.testId,
+        )
+      )?.order || 0;
+
+    if (body.order !== null && body.order >= lastOrder) {
+      body.order = lastOrder;
+    }
+
+    console.log(body, 'body');
+
     if (
       body.order !== null &&
       body.order >= 0 &&
